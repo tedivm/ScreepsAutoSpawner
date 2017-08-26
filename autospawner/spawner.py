@@ -116,7 +116,7 @@ class Spawner:
         if self.roominfo.getDensity(room, shard) < MINIMUM_DENSITY:
             return False
 
-        if self.roominfo.getSwampiness(room, shard) < MAXIMUM_SWAMPINESS:
+        if self.roominfo.getSwampiness(room, shard) > MAXIMUM_SWAMPINESS:
             return False
 
         return True
@@ -317,7 +317,7 @@ class RoomInfo:
         return dt[x][y]
 
     def getDensity(self, room, shard):
-        walkable - self.getWalkableCount()
+        walkable = self.getWalkableCount()
         return walkable/(50*50)
 
     def getSwampiness(self, room, shard):
@@ -327,7 +327,7 @@ class RoomInfo:
             for y in range(0, 50):
                 if terrain[x][y] == 'swamp':
                     swamps += 1
-        walkable - self.getWalkableCount()
+        walkable = self.getWalkableCount()
         return swamps/walkable
 
     def getWalkableCount():
