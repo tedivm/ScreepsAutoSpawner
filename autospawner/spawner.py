@@ -337,7 +337,7 @@ class RoomInfo:
             for y in range(0, 50):
                 if x not in terrain or y not in terrain[x]:
                     walkable += 1
-                elif terrain[x][y] == 'swamp':
+                elif terrain[x][y] != 'wall':
                     walkable += 1
         return walkable
 
