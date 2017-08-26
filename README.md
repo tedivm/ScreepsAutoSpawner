@@ -2,14 +2,14 @@
 
 The ScreepsAutoSpawner identifies when a player is no longer spawned on the [Screeps](https://screeps.com/) server and then resets the memory before placing a spawn.
 
-It uses a series of rules to make sure that the room it respawns in is approprirate, such as checking for two sources and confirming the player is allowed to spawn in that room, that the room has enough open space, and that the room isn't too swampy.
+It uses a series of rules to make sure that the room it respawns in is appropriate, such as checking for two sources and confirming the player is allowed to spawn in that room, that the room has enough open space, and that the room isn't too swampy.
 
 
 ## Commands
 
 * `screepsautospawner auth` - Give the username and password for the Screeps server. This command is the only interactive command.
 
-* `screepsautospawner respawn` - If allowed identify a shard and room to respawn in and do so. This will also clear all memory and segments.
+* `screepsautospawner respawn` - If allowed, identify a shard and room to respawn in and do so. This will also clear all memory and segments.
 
 * `screepsautospawner shouldspawn` - Return `true` if the system believes it should respawn. Also returns a `-1` error code if respawning isn't appropriate.
 
