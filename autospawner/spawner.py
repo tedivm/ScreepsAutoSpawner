@@ -1,5 +1,5 @@
 import screepsapi
-from screeps import screepsclient
+from autospawner.screeps import screepsclient
 import re
 import random
 import sys
@@ -252,7 +252,7 @@ class RoomInfo:
 
         for x in range(0,50):
             if x not in terrain_matrix:
-                continue
+                terrain_matrix[x] = {}
             for y in range(0,50):
                 if y not in terrain_matrix[x]:
                     terrain_matrix[x][y] = 'plain'
@@ -317,7 +317,7 @@ class RoomInfo:
         return dt[x][y]
 
     def getDensity(self, room, shard):
-        walkable = self.getWalkableCount()
+        walkable = self.getWalkableCount(room, shard)
         return walkable/(50*50)
 
     def getSwampiness(self, room, shard):
@@ -327,10 +327,10 @@ class RoomInfo:
             for y in range(0, 50):
                 if terrain[x][y] == 'swamp':
                     swamps += 1
-        walkable = self.getWalkableCount()
+        walkable = self.getWalkableCount(room, shard)
         return swamps/walkable
 
-    def getWalkableCount():
+    def getWalkableCount(self, room, shard):
         terrain = self.getRoomTerrain(room, shard)
         walkable = 0
         for x in range(0, 50):
@@ -358,7 +358,6 @@ class RoomInfo:
                     continue
                 test_pos = {'x': x, 'y': y}
                 controller_distance = self.getDistanceBetween(test_pos, controller_pos)
-                print(controller_distance)
                 if controller_distance < cur_distance:
                     cur_distance = controller_distance
                     ret['x'] = x
