@@ -1,3 +1,4 @@
+import click
 import screepsapi
 from autospawner.screeps import screepsclient
 import re
@@ -25,13 +26,18 @@ class Spawner:
         if not self.shouldSpawn():
             return False
         self.resetMemory()
-        self.place_spawn(room, 'Spawn1', position['x'], position['y'], shard)
+        ret = screepsclient.place_spawn(room, 'Spawn1', position['x'], position['y'], shard)
+        if 'error' in ret:
+            click.echo(ret['error'])
+            return False
+        return True
 
     def resetMemory(self):
+        shards = screepsclient.get_shards()
         for shard in shards:
             screepsclient.set_memory('', '{"creeps":{},"spawn":{},"rooms":{},"flags":{}}', shard)
             for i in range(0, 100):
-                screepsclient.set_segment(segid, '', shard)
+                screepsclient.set_segment(i, '', shard)
 
     def getShard(self):
         shardinfo = screepsclient.shard_info()['shards']
@@ -65,7 +71,6 @@ class Spawner:
 
     def getRoom(self, shard):
         sectors = screepsclient.world_start_room(shard=shard)['room']
-
         while True:
             sector = sectors.pop()
             rooms = self.getRoomList(shard, sector)
@@ -97,20 +102,23 @@ class Spawner:
                 if x < 7 and y < 7:
                     if x > 3 and y > 3:
                         continue
-                if not self.filterRoom(roomname, shard):
-                    continue
-                roomlist.append(roomname)
+                if self.filterRoom(roomname, shard):
+                    roomlist.append(roomname)
+
         sys.stdout.write('\n')
         return roomlist
 
     def filterRoom(self, room, shard):
+        if not self.roominfo.isClaimable(room, shard):
+            return False
+
         sources = self.roominfo.getSourceLocations(room, shard)
         if not sources:
             return False
         if len(sources) < MINIMUM_SOURCES:
             return False
 
-        if not self.roominfo.isClaimable(room, shard):
+        if not self.roominfo.getControllerLocation(room, shard):
             return False
 
         if self.roominfo.getDensity(room, shard) < MINIMUM_DENSITY:
@@ -136,7 +144,7 @@ class RoomInfo:
 
     def getControllerLocation(self, room, shard):
         details = self.getRoomDetails(room, shard)
-        if 'c' not in details:
+        if 'c' not in details or len(details['c']) < 1:
             return False
         return {'x': details['c'][0][0], 'y': details['c'][0][1]}
 
@@ -173,7 +181,6 @@ class RoomInfo:
                     raise Exception('Unauthorized')
 
     def getRoomDetails(self, room, shard='shard0'):
-
         if shard not in self.cache_details:
             self.cache_details[shard] = {}
 
@@ -193,29 +200,32 @@ class RoomInfo:
             try:
                 data = json.loads(response)
             except ValueError:
-                print(ValueError)
+                click.echo(ValueError)
                 continue
 
             if 'shard' in data[0]:
                 p = re.compile("roomMap2:(.*)/(.*)")
                 matches = p.match(data[0]).groups()
-                shard = matches[0]
-                room = matches[1]
+                ret_shard = matches[0]
+                ret_room = matches[1]
+                ws.send('unsubscribe roomMap2:%s/%s' % (ret_shard, ret_room))
             else:
                 p = re.compile("roomMap2:(.*)")
                 matches = p.match(data[0]).groups()
-                shard = 'shard0'
-                room = matches[0]
+                ret_shard = 'shard0'
+                ret_room = matches[0]
+                ws.send('unsubscribe roomMap2:%s' % (ret_room,))
 
-            if shard:
-                ws.send('unsubscribe roomMap2:%s/%s' % (shard, room))
-            else:
-                ws.send('unsubscribe roomMap2:%s' % (room,))
-
-            self.cache_details[shard][room] = data[1]
-            return data[1]
+            self.cache_details[ret_shard][ret_room] = data[1]
+            if shard in self.cache_details and room in self.cache_details[shard]:
+                return self.cache_details[shard][room]
 
     def isClaimable(self, room, shard):
+        mapstats = screepsclient.map_stats([room], 'claim0', shard)
+        if 'own' in mapstats['stats'][room]:
+            if 'user' in mapstats['stats'][room]['own']:
+                return False
+
         status_details = screepsclient.room_status(room, shard)['room']
         if status_details['status'] != 'normal':
             return False
@@ -225,7 +235,6 @@ class RoomInfo:
                 return False
 
         overview = screepsclient.room_overview(room, shard=shard)
-
         if overview['owner'] is not None:
             return False
 

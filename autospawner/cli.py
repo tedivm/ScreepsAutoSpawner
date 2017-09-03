@@ -34,6 +34,11 @@ def respawn():
     room = spawner.getRoom(shard)
     position = spawner.getPosition(room, shard)
     click.echo("%s %s %s,%s" % (shard, room, position['x'], position['y']))
+    if spawner.respawn(shard, room, position):
+        click.echo('Respawn complete')
+    else:
+        click.echo('Respawn Failed')
+        sys.exit(-1)
 
 
 @cli.command(short_help="Find Ideal Room and Position")
@@ -81,7 +86,6 @@ def terrain(room, shard):
     from autospawner.spawner import Spawner
     spawner = Spawner()
     terrain = spawner.roominfo.getRoomTerrain(room, shard)
-    print(terrain[3][0])
     for y in range(0,50):
         row = ''
         for x in range(0,50):
@@ -107,6 +111,15 @@ def dt(room, shard):
         for x in range(0,50):
             row = '%s%s' % (row, dt[x][y])
         click.echo(row)
+
+
+@cli.command(short_help="Confirm whether a specific room meets the validation rules for claiming")
+@click.argument('room')
+@click.argument('shard')
+def validate(room, shard):
+    from autospawner.spawner import Spawner
+    spawner = Spawner()
+    click.echo(spawner.filterRoom(room, shard))
 
 
 if __name__ == '__main__':
