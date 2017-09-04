@@ -7,7 +7,7 @@ import yaml
 @click.pass_context
 def cli(ctx):
     if ctx.parent:
-        print(ctx.parent.get_help())
+        click.echo(ctx.parent.get_help())
 
 
 @cli.command(short_help="Add Credentials")
@@ -47,6 +47,9 @@ def room():
     spawner = Spawner()
     shard = spawner.getShard()
     room = spawner.getRoom(shard)
+    if not room:
+        click.echo('No suitable room')
+        sys.exit(-1)
     position = spawner.getPosition(room, shard)
     click.echo("%s %s %s,%s" % (shard, room, position['x'], position['y']))
 
@@ -120,6 +123,14 @@ def validate(room, shard):
     from autospawner.spawner import Spawner
     spawner = Spawner()
     click.echo(spawner.filterRoom(room, shard))
+
+
+@cli.command(short_help="Erase player memory")
+def resetmemory():
+    from autospawner.spawner import Spawner
+    spawner = Spawner()
+    spawner.resetMemory()
+    click.echo('Memory reset')
 
 
 if __name__ == '__main__':

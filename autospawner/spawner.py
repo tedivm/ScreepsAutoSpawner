@@ -35,7 +35,7 @@ class Spawner:
     def resetMemory(self):
         shards = screepsclient.get_shards()
         for shard in shards:
-            screepsclient.set_memory('', '{"creeps":{},"spawn":{},"rooms":{},"flags":{}}', shard)
+            screepsclient.set_memory('', {'creeps':{}, 'flags': {}, 'rooms': {}, 'spawns': {}}, shard)
             for i in range(0, 100):
                 screepsclient.set_segment(i, '', shard)
 
@@ -78,7 +78,6 @@ class Spawner:
                 if len(sectors) < 1:
                     return False
                 continue
-
             rooms = self.sortRooms(rooms)
             return rooms[0]
 
@@ -141,6 +140,7 @@ class RoomInfo:
     my_details = False
     cache_details = {}
     cache_terrain = {}
+    banned_rooms = False
 
     def getControllerLocation(self, room, shard):
         details = self.getRoomDetails(room, shard)
@@ -221,6 +221,10 @@ class RoomInfo:
                 return self.cache_details[shard][room]
 
     def isClaimable(self, room, shard):
+        prohibited = self.getBannedRooms(shard=shard)
+        if room in prohibited:
+            return False
+
         mapstats = screepsclient.map_stats([room], 'claim0', shard)
         if 'own' in mapstats['stats'][room]:
             if 'user' in mapstats['stats'][room]['own']:
@@ -350,7 +354,6 @@ class RoomInfo:
                     walkable += 1
         return walkable
 
-
     def getPosition(self, room, shard):
         dt = self.getDistaceTranceform(room, shard)
         cur_distance = 50
@@ -383,3 +386,8 @@ class RoomInfo:
         if 'gcl' not in self.my_details:
             return 1
         return int((self.my_details['gcl']/1000000) ** (1/2.4))+1
+
+    def getBannedRooms(self, shard):
+        if not self.banned_rooms:
+            self.banned_rooms = screepsclient.respawn_prohibited_rooms(shard=shard)['rooms']
+        return self.banned_rooms
