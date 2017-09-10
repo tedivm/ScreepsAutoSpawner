@@ -8,7 +8,7 @@ from websocket import create_connection
 import json
 
 
-SPAWN_BUFFER = 3
+SPAWN_BUFFER = 4
 MINIMUM_DENSITY = 0.35
 MAXIMUM_SWAMPINESS = 0.20
 MINIMUM_SOURCES = 2
