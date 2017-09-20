@@ -23,3 +23,10 @@ screepsclient = screepsapi.API(
                 p=settings['password'],
                 ptr=settings['ptr'],
                 host=settings['host'])
+
+def api_error_except(api_result):
+    if 'error' in api_result:
+        raise Exception(api_result['error'])
+    return api_result
+
+setattr(screepsclient, "api_error_except", api_error_except)
