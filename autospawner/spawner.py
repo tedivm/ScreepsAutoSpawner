@@ -71,6 +71,7 @@ class Spawner:
 
     def getRoom(self, shard):
         sectors = screepsclient.world_start_room(shard=shard)['room']
+        screepsclient.api_error_except(sectors)
         while True:
             sector = sectors.pop()
             rooms = self.getRoomList(shard, sector)
@@ -226,11 +227,13 @@ class RoomInfo:
             return False
 
         mapstats = screepsclient.map_stats([room], 'claim0', shard)
+        screepsclient.api_error_except(mapstats)
         if 'own' in mapstats['stats'][room]:
             if 'user' in mapstats['stats'][room]['own']:
                 return False
 
         status_details = screepsclient.room_status(room, shard)['room']
+        screepsclient.api_error_except(status_details)
         if status_details['status'] != 'normal':
             return False
 
@@ -239,6 +242,7 @@ class RoomInfo:
                 return False
 
         overview = screepsclient.room_overview(room, shard=shard)
+        screepsclient.api_error_except(overview)
         if overview['owner'] is not None:
             return False
 
@@ -253,6 +257,7 @@ class RoomInfo:
             return self.cache_terrain[shard][room]
 
         terrain_list = screepsclient.room_terrain(room, shard=shard)
+        screepsclient.api_error_except(terrain_list)
         terrain_matrix = {}
         for terrain in terrain_list['terrain']:
             if terrain['x'] not in terrain_matrix:
@@ -390,4 +395,5 @@ class RoomInfo:
     def getBannedRooms(self, shard):
         if not self.banned_rooms:
             self.banned_rooms = screepsclient.respawn_prohibited_rooms(shard=shard)['rooms']
+            screepsclient.api_error_except(self.banned_rooms)
         return self.banned_rooms
