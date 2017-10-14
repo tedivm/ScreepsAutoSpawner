@@ -13,6 +13,8 @@ MINIMUM_DENSITY = 0.35
 MAXIMUM_SWAMPINESS = 0.20
 MINIMUM_SOURCES = 2
 
+UNSPAWNED_STATUSES = ['lost', 'empty']
+
 class Spawner:
 
     def __init__(self):
@@ -20,7 +22,7 @@ class Spawner:
 
     def shouldSpawn(self):
         statusres = screepsclient.world_status()
-        return 'status' in statusres and statusres['status'] == 'empty'
+        return 'status' in statusres and statusres['status'] in UNSPAWNED_STATUSES
 
     def respawn(self, shard, room, position):
         if not self.shouldSpawn():
