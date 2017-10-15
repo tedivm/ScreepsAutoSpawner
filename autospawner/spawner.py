@@ -28,7 +28,12 @@ class Spawner:
         if not self.shouldSpawn():
             return False
 
-        screepsclient.respawn()
+        statusres = screepsclient.world_status()
+        if 'status' in statusres and statusres['status'] == 'lost':
+            screepsclient.respawn()
+            click.echo('Sleeping to avoid respawn rate limiting')
+            sleep(185)
+
         self.resetMemory()
 
         ret = screepsclient.place_spawn(room, 'Spawn1', position['x'], position['y'], shard)
