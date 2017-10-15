@@ -27,7 +27,10 @@ class Spawner:
     def respawn(self, shard, room, position):
         if not self.shouldSpawn():
             return False
+
+        screepsclient.respawn()
         self.resetMemory()
+
         ret = screepsclient.place_spawn(room, 'Spawn1', position['x'], position['y'], shard)
         if 'error' in ret:
             click.echo(ret['error'])
