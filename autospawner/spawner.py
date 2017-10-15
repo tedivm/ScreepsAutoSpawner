@@ -247,6 +247,9 @@ class RoomInfo:
         if status_details['status'] != 'normal':
             return False
 
+        if 'openTime' in status_details:
+            return False
+
         if 'novice' in status_details:
             if self.getGcl() > 3:
                 return False
