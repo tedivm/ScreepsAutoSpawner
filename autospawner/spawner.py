@@ -4,6 +4,7 @@ from autospawner.screeps import screepsclient
 import re
 import random
 import sys
+from time import sleep
 from websocket import create_connection
 import json
 
