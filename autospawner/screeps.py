@@ -18,11 +18,17 @@ if 'ptr' not in settings:
 if 'host' not in settings:
     settings['host']= None
 
-screepsclient = screepsapi.API(
-                u=settings['username'],
-                p=settings['password'],
-                ptr=settings['ptr'],
-                host=settings['host'])
+if 'token' in settings:
+    screepsclient = screepsapi.API(
+                    token=settings['token'],
+                    ptr=settings['ptr'],
+                    host=settings['host'])
+else:
+    screepsclient = screepsapi.API(
+                    u=settings['username'],
+                    p=settings['password'],
+                    ptr=settings['ptr'],
+                    host=settings['host'])
 
 def api_error_except(api_result):
     if 'error' in api_result:

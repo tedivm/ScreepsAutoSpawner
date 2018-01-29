@@ -45,7 +45,7 @@ setup(
     'click>=5.0,<6.0',
     'PyYAML>=3.12,<3.13',
     'requests>=2.18.0,<2.19',
-    'screepsapi>=0.4.3'
+    'screepsapi>=0.5.0'
   ],
 
   extras_require={
