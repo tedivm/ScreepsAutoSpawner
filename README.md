@@ -4,6 +4,11 @@ The ScreepsAutoSpawner identifies when a player is no longer spawned on the [Scr
 
 It uses a series of rules to make sure that the room it respawns in is appropriate, such as checking for two sources and confirming the player is allowed to spawn in that room, that the room has enough open space, and that the room isn't too swampy.
 
+# Install
+
+Run `make` in command line
+
+Note that will install this tool as an pip package, so you can remove it with `pip uninstall screepsautospawner`
 
 ## Commands
 
